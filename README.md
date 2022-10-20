@@ -22,7 +22,7 @@ This template is thinked and designed for the docker environment. It is not reco
 
 ### Features
 
-|                                    |                            |
+| Features                           |                            |
 |------------------------------------|:--------------------------:|
 | Auto-reload                        |            ❌ No            |
 | Auto migrate at start              |             ✅              |
@@ -42,18 +42,18 @@ This template is thinked and designed for the docker environment. It is not reco
 - ❌ Not required
 - ⚠️ Optional
 
-|                             | Choice |
-|-----------------------------|:------:|
-| POSTGRES_PASSWORD           |   ✅    |
-| SECRET_KEY                  |   ⚠️   |
-| EMAIL_HOST                  |   ⚠️   |
-| EMAIL_HOST_PASSWORD         |   ⚠️   |
-| EMAIL_HOST_USER             |   ⚠️   |
-| EMAIL_PORT                  |   ⚠️   |
-| DEBUG                       |   ⚠️   |
-| DJANGO_ALLOWED_HOSTS        |   ✅    |
-| DJANGO_CORS_ALLOWED_ORIGINS |   ✅    |
-| DJANGO_CSRF_TRUSTED_ORIGINS |   ✅    |
+| Variables                   |     |
+|-----------------------------|:---:|
+| POSTGRES_PASSWORD           |  ✅  |
+| SECRET_KEY                  | ⚠️  |
+| EMAIL_HOST                  | ⚠️  |
+| EMAIL_HOST_PASSWORD         | ⚠️  |
+| EMAIL_HOST_USER             | ⚠️  |
+| EMAIL_PORT                  | ⚠️  |
+| DEBUG                       | ⚠️  |
+| DJANGO_ALLOWED_HOSTS        |  ✅  |
+| DJANGO_CORS_ALLOWED_ORIGINS |  ✅  |
+| DJANGO_CSRF_TRUSTED_ORIGINS |  ✅  |
 
 ### Example .env
 
