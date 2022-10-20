@@ -8,11 +8,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./app:/app
+      - static_volume:/data/static/
       - ./data/media:/data/media/
       - ./data/log:/data/log/
-      - ./requirements.txt:/requirements.txt
-      - ./scripts:/scripts
     depends_on:
       - database
     env_file:
@@ -30,3 +28,20 @@ services:
       - "5432:5432"
     env_file:
       - ./.env
+
+  nginx:
+    image: nginx
+    restart: always
+    depends_on:
+      - app
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/usr/src/app/static:ro
+      - ./data/media:/usr/src/app/media:ro
+    networks:
+      - default
+
+volumes:
+  static_volume:

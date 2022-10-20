@@ -16,25 +16,25 @@ This template is thinked and designed for the docker environment. It is not reco
 ### How to use Docker dev
 
 1. create a file named `.env` containing the required environment variables (read the next section)
-2. run `docker-compose up --build`
+2. run `docker-compose -f docker-compose-local-dev.yml up --build` for local dev or `docker-compose -f docker-compose-prod.yml up --build` for prod
 3. work with your local files
 4. execute commands inside the container. ex `docker exec -it django_template-app_1 python manage.py makemigrations`
 
 ### Features
 
-|                                    | Docker Dev |
-|------------------------------------|:----------:|
-| Auto-reload                        |     ✅      |
-| Auto migrate at start              |     ✅      |
-| Auto requirements install at start |     ✅      |
-| Database                           |  MariaDB   |
-| Database port publicly exposed     |     ✅      |
-| Reverse proxy (Nginx)              |     ❌      |
-| Debug                              |     ✅      |
-| Admin page                         |     ✅      |
-| Serving media automatically        |
-| CORS allow all                     |     ✅      |
-| Allow all hosts                    |     ✅      |
+|                                    |                            |
+|------------------------------------|:--------------------------:|
+| Auto-reload                        |            ❌ No            |
+| Auto migrate at start              |             ✅              |
+| Auto requirements install at start |             ✅              |
+| Database                           |          MariaDB           |
+| Database port publicly exposed     |             ✅              |
+| Reverse proxy (Nginx)              |        ⚠️ Optional         |
+| Debug                              | ⚠️ Optional (default=True) |
+| Admin page                         |             ✅              |
+| Serving media automatically        |             ✅              |
+| CORS allow all                     |  ❌ No (default=localhost)  |
+| Allow all hosts                    |  ❌ No (default=localhost)  |
 
 ### Required environment variables
 
@@ -42,16 +42,18 @@ This template is thinked and designed for the docker environment. It is not reco
 - ❌ Not required
 - ⚠️ Optional
 
-|                                     |   Docker Dev   |
-|-------------------------------------|:--------------:|
-| POSTGRES_PASSWORD                   |       ✅        |
-| SECRET_KEY (default string for dev) |       ⚠️       |
-| ALLOWED_HOSTS (all for dev)         |       ❌        |
-| CORS_ALLOWED_ORIGINS (all for dev)  |       ❌        |
-| EMAIL_HOST                          |       ⚠️       |
-| EMAIL_HOST_PASSWORD                 |       ⚠️       |
-| EMAIL_HOST_USER                     |       ⚠️       |
-| EMAIL_PORT (default EMAIL_PORT)     |       ⚠️       |
+|                             | Choice |
+|-----------------------------|:------:|
+| POSTGRES_PASSWORD           |   ✅    |
+| SECRET_KEY                  |   ⚠️   |
+| EMAIL_HOST                  |   ⚠️   |
+| EMAIL_HOST_PASSWORD         |   ⚠️   |
+| EMAIL_HOST_USER             |   ⚠️   |
+| EMAIL_PORT                  |   ⚠️   |
+| DEBUG                       |   ⚠️   |
+| DJANGO_ALLOWED_HOSTS        |   ✅    |
+| DJANGO_CORS_ALLOWED_ORIGINS |   ✅    |
+| DJANGO_CSRF_TRUSTED_ORIGINS |   ✅    |
 
 ### Example .env
 
@@ -62,6 +64,8 @@ EMAIL_HOST=smtp.gmail.com
 EMAIL_HOST_PASSWORD=gmailpassword
 EMAIL_HOST_USER=yourmail@gmail.com
 EMAIL_PORT=587
-ALLOWED_HOSTS=localhost,127.0.0.1,api.something.it
-CORS_ALLOWED_ORIGINS=https://frontend.com,https://sub.frontend.com
+DEBUG=True
+DJANGO_ALLOWED_HOSTS=*
+DJANGO_CORS_ALLOWED_ORIGINS=http://localhost:5000
+DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost:5000
 ```
