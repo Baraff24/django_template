@@ -10,7 +10,7 @@
 
 ## Environments
 
-This template is thinked and designed for the docker environment. It is not recommended to use it without docker.
+This template is thought and designed for the docker environment. It is not recommended to use it without docker.
 
 
 ### How to use Docker dev
