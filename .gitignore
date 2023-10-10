@@ -19,6 +19,7 @@ media
 # Byte-compiled / optimized / DLL files
 *.py[cod]
 *$py.class
+venv/
 
 # C extensions
 *.so
@@ -135,7 +136,6 @@ celerybeat.pid
 .env
 .venv
 env/
-venv/
 ENV/
 env.bak/
 venv.bak/
@@ -291,3 +291,4 @@ Temporary Items
 /data/postgresql/
 /app/.idea/
 /.idea/
+*.env

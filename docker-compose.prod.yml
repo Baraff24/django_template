@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    restart: always
+    command: "/scripts/docker/starter.sh"
+    env_file:
+      - ./.env
+    expose:
+      - 8000
+    volumes:
+      - static_volume:/code/staticfiles
+      - media_volume:/code/mediafiles
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7
+
+  celery:
+    build: .
+    restart: always
+    command: celery -A config worker -l info
+    volumes:
+      - .:/code
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - app
+
+  nginx:
+    build: ./nginx
+    restart: always
+    ports:
+      - ${NGINX_PORT}:80
+    volumes:
+      - static_volume:/code/staticfiles
+      - media_volume:/code/mediafiles
+    depends_on:
+      - app
+
+volumes:
+  static_volume:
+  media_volume:
