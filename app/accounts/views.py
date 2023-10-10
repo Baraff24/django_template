@@ -93,5 +93,6 @@ class CompleteProfileAPI(APIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({"The User: {}, has already completed his profile".format(user)},
+            return Response({"The User: {}, has already completed his profile"
+                            .format(user)},
                             status=status.HTTP_400_BAD_REQUEST)

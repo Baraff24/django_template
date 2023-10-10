@@ -12,7 +12,4 @@ class UserSerializer(serializers.ModelSerializer):
 class CompleteProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'telephone', 'gender',
-                  'age', 'nationality', 'domicile', 'education',
-                  'university', 'occupation', 'socio_economic_status',
-                  'self_harmful_thoughts', 'n_exercises', 'n_daily_questions', 'n_baseline']
+        fields = ['first_name', 'last_name', 'telephone', 'gender']

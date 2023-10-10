@@ -7,10 +7,6 @@ MAN = 'MAN'
 WOMAN = 'WOMAN'
 NONE = 'NONE'
 
-# TYPE_OF_USER_CHOICES VALUES
-PATIENT = 'PATIENT'
-PROFESSIONAL = 'PROFESSIONAL'
-
 
 STATUS_CHOICES = (
     (COMPLETE, 'Complete'),
@@ -22,10 +18,4 @@ GENDER_CHOICES = (
     (MAN, 'Man'),
     (WOMAN, 'Woman'),
     (NONE, 'None'),
-)
-
-
-TYPE_OF_USER_CHOICES = (
-    (PATIENT, 'Patient'),
-    (PROFESSIONAL, 'Professional'),
 )

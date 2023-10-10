@@ -7,7 +7,10 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = (
         *UserAdmin.fieldsets,  # original form fieldsets, expanded
         (  # new fieldset added on to the bottom
-            'Other information of the User',  # group heading of your choice; set to None for a blank space instead of a header
+
+            # group heading of your choice;
+            # set to None for a blank space instead of a header
+            'Other information of the User',
             {
                 'fields': (
                     'telephone',
