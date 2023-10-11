@@ -36,9 +36,9 @@ services:
     volumes:
       - ./data/postgresql:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=app_db
-      - POSTGRES_USER=app_db
-      - POSTGRES_PASSWORD=app_db
+     - POSTGRES_PASSWORD=${DB_PASSWORD}
+     - POSTGRES_DB=${DB_NAME}
+     - POSTGRES_USER=${DB_USERNAME}
     ports:
       - "5432:5432"
     env_file:

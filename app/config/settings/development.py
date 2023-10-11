@@ -1,4 +1,5 @@
-from .base import os, BASE_DIR
+# from .base import os, BASE_DIR
+from .base import *
 
 # Media and static files
 MEDIA_URL = 'media/'
