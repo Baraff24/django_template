@@ -31,13 +31,14 @@ services:
       - database
 
   database:
-    image: postgres:15.0
+    image: postgres:16.0
     restart: always
     volumes:
       - ./data/postgresql:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=app_db
       - POSTGRES_USER=app_db
+      - POSTGRES_PASSWORD=app_db
     ports:
       - "5432:5432"
     env_file:
