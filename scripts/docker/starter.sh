@@ -13,4 +13,4 @@ echo -e "\e[34m >>> Tests for accounts app \e[97m"
 python manage.py test accounts
 echo -e "\e[32m >>> Tests completed \e[97m"
 
-gunicorn core.asgi --bind 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker
+gunicorn core.asgi --bind 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker --timeout 20 --workers=2

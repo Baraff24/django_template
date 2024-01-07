@@ -41,10 +41,18 @@ Example: `docker exec -it django-template-app-1 ruff check .`
 | Serving media automatically        |             ✅              |
 | CORS allow all                     |  ❌ No (default=localhost)  |
 | Allow all hosts                    |  ❌ No (default=localhost)  |
+| Certbot                            |        ⚠️ Optional         |
 
 There is google oauth2 authentication already implemented with django-allauth.
 You have to create a google oauth2 app and add the credentials to the admin page.
 
+### Certbot
+
+If you use the certbot feature in production, you have to use this command to make the certificates for the first time:
+`docker-compose -f docker-compose.deploy.yml run --rm certbot /opt/certify-init.sh`
+
+To renew the certificates, you have to use this command:
+`docker-compose -f docker-compose.deploy.yml run --rm certbot sh -c "certbot renew"`
 
 ### Required environment variables
 
@@ -75,8 +83,11 @@ You have to create a google oauth2 app and add the credentials to the admin page
 | DJANGO_CORS_ALLOWED_ORIGINS | ✅  |
 | DJANGO_CSRF_TRUSTED_ORIGINS | ✅  |
 | CELERY_BROKER_URL           | ✅  |
+| CELERY_RESULT_BACKEND       | ✅  |
 | REDIS_BACKEND               | ✅  |
 | NGINX_PORT                  | ✅  |
+| ACME_DEFAULT_EMAIL          | ✅  |
+| DOMAIN                      | ✅  |
 
 ### Example .env
 
@@ -102,6 +113,9 @@ DJANGO_ALLOWED_HOSTS=*
 DJANGO_CORS_ALLOWED_ORIGINS=http://localhost:5000
 DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost:5000
 CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
 REDIS_BACKEND=redis://redis:6379/0
 NGINX_PORT=80
+ACME_DEFAULT_EMAIL=email@example.com
+DOMAIN=example.com
 ```

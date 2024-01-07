@@ -39,10 +39,31 @@ services:
     volumes:
       - static_volume:/code/staticfiles
       - media_volume:/code/mediafiles
-      - ./ssl:/etc/nginx/ssl:ro
+      # - ./ssl:/etc/nginx/ssl:ro
+      - certbot-web:/vol/www
+      - proxy-dhparams:/vol/proxy
+      - certbot-certs:/etc/letsencrypt
     depends_on:
       - app
+    environment:
+      - DOMAIN=${DOMAIN}
+
+  certbot:
+    build:
+      context: ./docker/certbot
+    command: echo "Skipping..."
+    environment:
+      - EMAIL=${ACME_DEFAULT_EMAIL}
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - certbot-web:/vol/www
+      - certbot-certs:/etc/letsencrypt/
+    depends_on:
+      - nginx
 
 volumes:
   static_volume:
   media_volume:
+  certbot-web:
+  proxy-dhparams:
+  certbot-certs:
