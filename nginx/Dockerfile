@@ -5,7 +5,7 @@ COPY nginx.conf /etc/nginx/conf.d
 COPY ./proxy-runner.sh /proxy-runner.sh
 
 RUN apk add --no-cache openssl bash
-RUN chmod +x /run.sh
+RUN chmod +x /proxy-runner.sh
 
 VOLUME /vol/www
 
