@@ -12,9 +12,10 @@
 # CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://redis:6379/0')
 #
 # CELERY_BEAT_SCHEDULE = {
-#     'renew-ssl-certificate': {
-#         'task': 'app.tasks.renew_ssl_certificate',
-#         'schedule': crontab(minute='0', hour='2'),  # Renew SSL certificate every day at 2:00 AM
+#     'example_task': {
+#         'task': 'app.tasks.example_task',
+#         # Activate example_task every month on the 1st day at 2:00 AM
+#         'schedule': crontab(minute='0', hour='2', day_of_month='1'),
 #     },
 # }
 

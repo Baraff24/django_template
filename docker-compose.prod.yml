@@ -12,6 +12,7 @@ services:
       - media_volume:/code/mediafiles
     depends_on:
       - redis
+      - database
 
   redis:
     image: redis:7
@@ -27,41 +28,38 @@ services:
     depends_on:
       - redis
       - app
+      - database
 
-  nginx:
-    build: ./nginx
+  database:
+    image: postgres:16.0
+    restart: always
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USERNAME}
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.env
+
+  caddy:
+    build: ./caddy
     restart: always
     ports:
-      - ${NGINX_PORT}:80
+      - ${CADDY_PORT}:80
       - "443:443"
     volumes:
       - static_volume:/code/staticfiles
       - media_volume:/code/mediafiles
-      # - ./ssl:/etc/nginx/ssl:ro
-      - certbot-web:/vol/www
-      - proxy-dhparams:/vol/proxy
-      - certbot-certs:/etc/letsencrypt
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
     depends_on:
       - app
     environment:
       - DOMAIN=${DOMAIN}
-
-  certbot:
-    build:
-      context: ./certbot
-    command: echo "Skipping..."
-    environment:
-      - EMAIL=${ACME_DEFAULT_EMAIL}
-      - DOMAIN=${DOMAIN}
-    volumes:
-      - certbot-web:/vol/www
-      - certbot-certs:/etc/letsencrypt/
-    depends_on:
-      - nginx
+      - EMAIL=${CADDY_EMAIL}
 
 volumes:
   static_volume:
   media_volume:
-  certbot-web:
-  proxy-dhparams:
-  certbot-certs:
