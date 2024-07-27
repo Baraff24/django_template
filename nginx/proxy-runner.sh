@@ -19,6 +19,5 @@ if [ ! -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
 fi
   echo "Copying nginx.conf"
   envsubst < /etc/nginx/nginx.conf> /etc/nginx/conf.d/default.conf
-fi
 
 nginx -g 'daemon off;'
