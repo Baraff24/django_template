@@ -49,10 +49,10 @@ You have to create a google oauth2 app and add the credentials to the admin page
 ### Certbot
 
 If you use the certbot feature in production, you have to use this command to make the certificates for the first time:
-`docker-compose -f docker-compose.deploy.yml run --rm certbot /opt/certify-init.sh`
+`docker compose -f docker-compose.prod.yml run --rm certbot /opt/certify-init.sh`
 
 To renew the certificates, you have to use this command:
-`docker-compose -f docker-compose.deploy.yml run --rm certbot sh -c "certbot renew"`
+`docker compose -f docker-compose.prod.yml run --rm certbot sh -c "certbot renew"`
 
 ### Required environment variables
 
