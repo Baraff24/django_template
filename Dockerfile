@@ -19,6 +19,7 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt \
 WORKDIR /app
 COPY ./scripts /scripts/
 COPY ./app .
+COPY ./templates /templates/
 
 ENTRYPOINT ["/scripts/docker/wait-for-it.sh", "database:5432" , "-s", "--"]
 CMD ["/scripts/docker/starter.sh"]

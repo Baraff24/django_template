@@ -46,6 +46,12 @@ Example: `docker exec -it django-template-app-1 ruff check .`
 There is google oauth2 authentication already implemented with django-allauth.
 You have to create a google oauth2 app and add the credentials to the admin page.
 
+### drf-spectacular
+To generate the schema.yml file run inside the container
+`python manage.py spectacular --color --file schema.yml`
+or outside the container
+`docker exec -it backend-booking-taranto-app-1 python manage.py spectacular --color --file schema.yml`
+
 ### Required environment variables
 
 - ✅ Required

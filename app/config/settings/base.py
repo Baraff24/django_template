@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'dj_rest_auth',
     'dj_rest_auth.registration',
+    'drf_spectacular',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',  # Google OAuth2
     'allauth.socialaccount.providers.apple',  # Apple OAuth2
@@ -51,7 +52,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / '../templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -59,9 +60,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-
-                # `allauth` needs this from django
-                'django.template.context_processors.request',
             ],
         },
     },
@@ -126,7 +124,17 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-    ]
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# Spectacular settings
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Django Template',
+    'DESCRIPTION': 'Django Template',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
 }
 
 # Email
