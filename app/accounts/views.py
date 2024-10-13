@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.decorators import method_decorator
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -26,14 +27,20 @@ class UsersListAPI(APIView):
 
 
 class UserDetailAPI(APIView):
+    """
+    Retrieve, update or delete a user instance.
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
     @staticmethod
     def get_object(pk):
+        """
+        Get the user object by primary
+        """
         try:
             return User.objects.get(pk=pk)
-        except User.DoesNotExist:
+        except ObjectDoesNotExist:
             return None
 
     @method_decorator(is_active)

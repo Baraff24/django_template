@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - /app
+      - ./app:/app
     depends_on:
       - redis
       - database
@@ -18,11 +18,12 @@ services:
 
   celery:
     build: .
-    command: celery -A config worker -l info
+    command: "/scripts/docker/starter_celery.sh"
     volumes:
       - .:/code
     env_file:
       - ./.env
+    user: "celeryuser"
     depends_on:
       - redis
       - app
@@ -33,11 +34,11 @@ services:
     restart: always
     volumes:
       - ./data/postgresql:/var/lib/postgresql/data
-    environment:
-     - POSTGRES_PASSWORD=${DB_PASSWORD}
-     - POSTGRES_DB=${DB_NAME}
-     - POSTGRES_USER=${DB_USERNAME}
     ports:
       - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USERNAME}
     env_file:
       - ./.env
