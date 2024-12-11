@@ -6,12 +6,12 @@
     reverse_proxy app:8000
 
     handle_path /static/* {
-        root * /code/staticfiles
+        root * /vol/staticfiles
         file_server
     }
 
     handle_path /media/* {
-        root * /code/mediafiles
+        root * /vol/mediafiles
         file_server
     }
 
