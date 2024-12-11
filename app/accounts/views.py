@@ -1,105 +1,83 @@
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils.decorators import method_decorator
-from rest_framework import status
+from rest_framework import status, generics
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from .constants import PENDING_COMPLETE_DATA, COMPLETE
-from .functions import is_active
 from .models import User
 from .serializers import UserSerializer, CompleteProfileSerializer
+from .permissions import IsActiveAndVerifiedAndComplete, IsSuperuserOrSelf
 
 
-class UsersListAPI(APIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = UserSerializer
-
-    @method_decorator(is_active)
-    def get(self, request):
-        user = request.user
-        obj = User.objects.all()
-        serializer = self.serializer_class(obj, many=True)
-        if user.is_superuser:
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-
-class UserDetailAPI(APIView):
+class UsersListAPI(generics.ListAPIView):
     """
-    Retrieve, update or delete a user instance.
+    Return a list of all users.
+    Only superusers can access this endpoint.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveAndVerifiedAndComplete]
     serializer_class = UserSerializer
+    queryset = User.objects.all()
 
-    @staticmethod
-    def get_object(pk):
-        """
-        Get the user object by primary
-        """
-        try:
-            return User.objects.get(pk=pk)
-        except ObjectDoesNotExist:
-            return None
-
-    @method_decorator(is_active)
-    def get(self, request, pk):
-        obj = self.get_object(pk)
-        if obj is None:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = self.serializer_class(obj)
-        if request.user.is_superuser:
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-    @method_decorator(is_active)
-    def put(self, request, pk):
-        obj = self.get_object(pk)
-        if obj is None:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = self.serializer_class(obj, data=request.data)
-        if obj.id == request.user.id or request.user.is_superuser:
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-    @method_decorator(is_active)
-    def delete(self, request, pk):
-        obj = self.get_object(pk)
-        if obj is None:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        if obj.id == request.user.id or request.user.is_superuser:
-            obj.is_active = False
-            obj.save()
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+    def list(self, request, *args, **kwargs):
+        # Check if the user is superuser, otherwise deny access
+        if not request.user.is_superuser:
+            raise PermissionDenied("You do not have permission to view this resource.")
+        return super().list(request, *args, **kwargs)
 
 
-class CompleteProfileAPI(APIView):
-    permission_classes = [IsAuthenticated]
+class UserDetailAPI(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update, or delete a user instance.
+    Only superusers or the user itself can perform these actions.
+    When deleting, the user is set as inactive rather than being removed.
+    """
+    permission_classes = [IsAuthenticated, IsActiveAndVerifiedAndComplete, IsSuperuserOrSelf]
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+    def perform_destroy(self, instance):
+        # Instead of deleting the user, set is_active to False
+        instance.is_active = False
+        instance.save()
+
+
+class CompleteProfileAPI(generics.UpdateAPIView):
+    """
+    Allows a user with PENDING_COMPLETE_DATA status to complete their profile.
+    Once completed, the user's status is set to COMPLETE.
+    """
+    permission_classes = [IsAuthenticated, IsActiveAndVerifiedAndComplete]
     serializer_class = CompleteProfileSerializer
 
-    def put(self, request):
-        user = request.user
-        if user.status == PENDING_COMPLETE_DATA:
-            serializer = self.serializer_class(data=request.data)
-            if serializer.is_valid():
-                user.first_name = serializer.validated_data['first_name']
-                user.last_name = serializer.validated_data['last_name']
-                user.telephone = serializer.validated_data['telephone']
-                user.status = COMPLETE
-                user.save()
-                return Response({'user_status': COMPLETE}, status=status.HTTP_200_OK)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({"The User: {}, has already completed his profile"
-                            .format(user)},
+    response_data = None
+
+    def get_object(self):
+        # The object is the authenticated user
+        user = self.request.user
+        if not isinstance(user, User):
+            # If the user is not an instance of User, raise an error
+            raise PermissionDenied("You do not have permission to complete this action.")
+
+    def update(self, request, *args, **kwargs):
+        user = self.get_object()
+        if user.status != PENDING_COMPLETE_DATA:
+            # If the user's status is not PENDING_COMPLETE_DATA, raise an error
+            return Response({"error": f"The user {user}, has already completed the profile."},
                             status=status.HTTP_400_BAD_REQUEST)
+        return super().update(request, *args, **kwargs)
+
+    def perform_update(self, serializer):
+        # Update user's data and set status to COMPLETE
+        user = self.get_object()
+        serializer.save()  # This will update the fields specified in the serializer
+        user.status = COMPLETE
+        user.save()
+        # Returning a custom response
+        self.response_data = {'user_status': COMPLETE}
+
+    def put(self, request, *args, **kwargs):
+        response = super().put(request, *args, **kwargs)
+        # If we have a custom response_data, return it
+        if hasattr(self, 'response_data'):
+            return Response(self.response_data, status=status.HTTP_200_OK)
+        return response
