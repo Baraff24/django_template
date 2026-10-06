@@ -1,66 +1,108 @@
 services:
   app:
     build: .
-    restart: always
-    command: "/scripts/docker/starter.sh"
+    restart: unless-stopped
     env_file:
       - ./.env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.production
     expose:
-      - 8000
+      - "8000"
     volumes:
       - static_volume:/vol/staticfiles
       - media_volume:/vol/mediafiles
     depends_on:
-      - redis
-      - database
+      redis:
+        condition: service_healthy
+      database:
+        condition: service_healthy
 
   redis:
-    image: redis:7
+    image: redis:8.10.2-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   celery:
     build: .
-    restart: always
-    command: "/scripts/docker/starter_celery.sh"
-    volumes:
-      - .:/code
+    restart: unless-stopped
+    command: ["/scripts/docker/starter_celery.sh"]
     env_file:
       - ./.env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.production
     user: "celeryuser"
+    volumes:
+      - media_volume:/vol/mediafiles
     depends_on:
-      - redis
-      - app
-      - database
+      redis:
+        condition: service_healthy
+      database:
+        condition: service_healthy
+
+  celery-beat:
+    build: .
+    restart: unless-stopped
+    command: ["celery", "-A", "config", "beat", "--loglevel=info", "--schedule=/data/celery/celerybeat-schedule"]
+    env_file:
+      - ./.env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.production
+    user: "celeryuser"
+    volumes:
+      - celery_beat:/data/celery
+    depends_on:
+      redis:
+        condition: service_healthy
+      database:
+        condition: service_healthy
 
   database:
-    image: postgres:16.0
-    restart: always
+    image: postgres:18.6-trixie
+    restart: unless-stopped
     volumes:
-      - ./data/postgresql:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - postgres_data:/var/lib/postgresql
     environment:
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
     env_file:
       - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   caddy:
     build: ./caddy
-    restart: always
+    restart: unless-stopped
     ports:
-      - ${CADDY_PORT}:80
+      - "${CADDY_PORT:-80}:80"
       - "443:443"
+      - "443:443/udp"
     volumes:
-      - static_volume:/vol/staticfiles
-      - media_volume:/vol/mediafiles
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - static_volume:/vol/staticfiles:ro
+      - media_volume:/vol/mediafiles:ro
+      - caddy_data:/data
+      - caddy_config:/config
     depends_on:
       - app
     environment:
-      - DOMAIN=${DOMAIN}
-      - EMAIL=${CADDY_EMAIL}
+      DOMAIN: ${DOMAIN}
+      EMAIL: ${CADDY_EMAIL}
 
 volumes:
+  postgres_data:
+  redis_data:
   static_volume:
   media_volume:
+  celery_beat:
+  caddy_data:
+  caddy_config:

@@ -1,44 +1,83 @@
 services:
   app:
     build: .
-    restart: always
-    command: "/scripts/docker/starter.sh"
+    restart: unless-stopped
     ports:
       - "8000:8000"
     volumes:
       - ./app:/app
+      - ./templates:/templates:ro
     depends_on:
-      - redis
-      - database
+      redis:
+        condition: service_healthy
+      database:
+        condition: service_healthy
     env_file:
       - ./.env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.development
 
   redis:
-    image: redis:7
+    image: redis:8.10.2-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   celery:
     build: .
-    command: "/scripts/docker/starter_celery.sh"
+    command: ["/scripts/docker/starter_celery.sh"]
     volumes:
-      - .:/code
+      - ./app:/app
+      - ./templates:/templates:ro
     env_file:
       - ./.env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.development
     user: "celeryuser"
     depends_on:
-      - redis
-      - app
-      - database
+      redis:
+        condition: service_healthy
+      database:
+        condition: service_healthy
 
-  database:
-    image: postgres:16.0
-    restart: always
+  celery-beat:
+    build: .
+    command: ["celery", "-A", "config", "beat", "--loglevel=info", "--schedule=/data/celery/celerybeat-schedule"]
     volumes:
-      - ./data/postgresql:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USERNAME}
+      - ./app:/app
+      - celery_beat:/data/celery
     env_file:
       - ./.env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.development
+    user: "celeryuser"
+    depends_on:
+      redis:
+        condition: service_healthy
+      database:
+        condition: service_healthy
+
+  database:
+    image: postgres:18.6-trixie
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  postgres_data:
+  celery_beat:

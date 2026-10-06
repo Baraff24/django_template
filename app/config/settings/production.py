@@ -1,21 +1,13 @@
-# import here the file from base.py
-# for example: from .base import *
-# from celery.schedules import crontab
-# from decouple import config
+from decouple import Csv, config
 
-# Media and static files
-# Add settings for media files like images and videos (AWS S3, Cloudinary, etc.)
+from .base import *  # noqa: F403
 
-# Celery
-
-# CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://redis:6379/0')
-# CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://redis:6379/0')
-#
-# CELERY_BEAT_SCHEDULE = {
-#     'example_task': {
-#         'task': 'app.tasks.example_task',
-#         # Activate example_task every month on the 1st day at 2:00 AM
-#         'schedule': crontab(minute='0', hour='2', day_of_month='1'),
-#     },
-# }
-
+DEBUG = False
+SERVE_MEDIA = False
+ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS", cast=Csv())
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=31536000, cast=int)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = config("SECURE_HSTS_INCLUDE_SUBDOMAINS", default=True, cast=bool)
+SECURE_HSTS_PRELOAD = config("SECURE_HSTS_PRELOAD", default=True, cast=bool)

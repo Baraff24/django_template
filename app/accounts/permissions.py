@@ -1,14 +1,14 @@
-from rest_framework.permissions import BasePermission
-from rest_framework.exceptions import PermissionDenied
 from allauth.account.models import EmailAddress
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import BasePermission
 
-from app.accounts.constants import COMPLETE
+from .constants import COMPLETE
 
 
-class IsActiveAndVerifiedAndComplete(BasePermission):
+class IsActiveAndVerified(BasePermission):
     """
     Permission class that checks if the user is authenticated, active,
-    has a verified email, and that the user's status is COMPLETE.
+    has a verified email.
     """
 
     def has_permission(self, request, view):
@@ -22,9 +22,19 @@ class IsActiveAndVerifiedAndComplete(BasePermission):
             # Return a PermissionDenied exception if the user's email is not verified
             raise PermissionDenied("Your email is not verified.")
 
-        if user.status != COMPLETE:
+        return True
+
+
+class IsActiveAndVerifiedAndComplete(IsActiveAndVerified):
+    """Require a verified, active account with a completed profile."""
+
+    def has_permission(self, request, view):
+        super().has_permission(request, view)
+        if request.user.status != COMPLETE:
             # Return a PermissionDenied exception if the user's status is not COMPLETE
-            raise PermissionDenied(f"You have to complete the data completion process. Current status: {user.status}")
+            raise PermissionDenied(
+                f"You have to complete the data completion process. Current status: {request.user.status}"
+            )
 
         return True
 

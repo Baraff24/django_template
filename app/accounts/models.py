@@ -1,6 +1,7 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
-from .constants import STATUS_CHOICES, PENDING_COMPLETE_DATA, GENDER_CHOICES, NONE
+from django.db import models
+
+from .constants import GENDER_CHOICES, NONE, PENDING_COMPLETE_DATA, STATUS_CHOICES
 
 
 class User(AbstractUser):
@@ -14,6 +15,7 @@ class User(AbstractUser):
     - gender: User's gender
     - status: User's status in the system
     """
+
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
     telephone = models.CharField(max_length=20, unique=True, blank=True, null=True)
@@ -21,4 +23,4 @@ class User(AbstractUser):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING_COMPLETE_DATA)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} - {self.email}"
+        return f"{self.get_full_name() or self.username} - {self.email}"

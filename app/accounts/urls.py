@@ -1,10 +1,10 @@
 from django.urls import path
 
-from .views import UsersListAPI, UserDetailAPI, CompleteProfileAPI
+from .views import CompleteProfileAPI, UserDetailAPI, UsersListAPI
 
 urlpatterns = [
+    path("users/", UsersListAPI.as_view(), name="users-list"),
     path("users/", UsersListAPI.as_view(), name="users"),
     path("users/<int:pk>/", UserDetailAPI.as_view(), name="user-detail"),
-    path("users/complete-profile/", CompleteProfileAPI.as_view(),
-         name="complete-profile"),
+    path("users/complete-profile/", CompleteProfileAPI.as_view(), name="complete-profile"),
 ]

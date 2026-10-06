@@ -1,67 +1,69 @@
 from pathlib import Path
-import os
-from decouple import config, Csv
+
+from decouple import Csv, config
 
 # Use decouple to use environment variables
 
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = config("SECRET_KEY")
 
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', cast=Csv())
+ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+LOG_ROOT = Path(config("LOG_ROOT", default=str(BASE_DIR / "logs")))
+LOG_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.auth',
-    'django.contrib.admin',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
-    'drf_spectacular',
-    'corsheaders',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',  # Google OAuth2
-    'allauth.socialaccount.providers.apple',  # Apple OAuth2
-    'accounts',
+    "django.contrib.auth",
+    "django.contrib.admin",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "drf_spectacular",
+    "corsheaders",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",  # Google OAuth2
+    "allauth.socialaccount.providers.apple",  # Apple OAuth2
+    "accounts",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
-ROOT_URLCONF = 'core.urls'
+ROOT_URLCONF = "core.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / '../templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "../templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
@@ -69,175 +71,174 @@ TEMPLATES = [
 
 AUTHENTICATION_BACKENDS = [
     # Needed to log in by username in Django admin, regardless of `allauth`
-    'django.contrib.auth.backends.ModelBackend',
-
+    "django.contrib.auth.backends.ModelBackend",
     # `allauth` specific authentication methods, such as login by e-mail
-    'allauth.account.auth_backends.AuthenticationBackend',
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
-ASGI_APPLICATION = 'core.asgi.application'
+WSGI_APPLICATION = "core.wsgi.application"
+ASGI_APPLICATION = "core.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'HOST': config('DB_HOSTNAME'),
-        'PORT': config('DB_PORT', cast=int),
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USERNAME'),
-        'PASSWORD': config('DB_PASSWORD'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": config("DB_HOSTNAME"),
+        "PORT": config("DB_PORT", cast=int),
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USERNAME"),
+        "PASSWORD": config("DB_PASSWORD"),
     }
 }
 
-CSRF_TRUSTED_ORIGINS = os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS').split(',')
+CSRF_TRUSTED_ORIGINS = config("DJANGO_CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
 
-SERVE_MEDIA = True
+SERVE_MEDIA = False
 
-CORS_ALLOWED_ORIGINS = os.getenv('DJANGO_CORS_ALLOWED_ORIGINS').split(',')
+CORS_ALLOWED_ORIGINS = config("DJANGO_CORS_ALLOWED_ORIGINS", default="", cast=Csv())
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Custom auth user model
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = "accounts.User"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME':
-            'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 REST_FRAMEWORK = {
-    'DATETIME_FORMAT': "%d-%m-%Y %H:%M",
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+    "DATETIME_FORMAT": "%d-%m-%Y %H:%M",
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
     ],
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,  # Keep Django's default loggers
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,  # Keep Django's default loggers
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
         },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',  # Minimum log level to console
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-            'stream': 'ext://sys.stdout',  # Send everything to stdout
-        },
-        'file': {
-            'level': 'WARNING',  # Write logs warning or higher to file
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/django.log'),
-            'formatter': 'verbose',
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
         },
     },
-    'root': {
-        'handlers': ['console'],  # Log of all loggers to console
-        'level': 'INFO',  # Minimum log level for the root logger
+    "handlers": {
+        "console": {
+            "level": "DEBUG",  # Minimum log level to console
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+            "stream": "ext://sys.stdout",  # Send everything to stdout
+        },
+        "file": {
+            "level": "WARNING",  # Write logs warning or higher to file
+            "class": "logging.FileHandler",
+            "filename": LOG_ROOT / "django.log",
+            "formatter": "verbose",
+        },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
+    "root": {
+        "handlers": ["console"],  # Log of all loggers to console
+        "level": "INFO",  # Minimum log level for the root logger
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
         },
-        'django.db.backends': {
-            'handlers': ['console'],
-            'level': 'ERROR',  # Log only error messages
-            'propagate': False,
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "ERROR",  # Log only error messages
+            "propagate": False,
         },
-        'celery': {
-            'handlers': ['console'],
-            'level': 'INFO',  # Celery log level
-            'propagate': False,
+        "celery": {
+            "handlers": ["console"],
+            "level": "INFO",  # Celery log level
+            "propagate": False,
         },
-        'accounts': {
-            'handlers': ['console', 'file'],
-            'level': 'INFO',  # or 'DEBUG' for more logs (testing)
-            'propagate': False,
+        "accounts": {
+            "handlers": ["console", "file"],
+            "level": "INFO",  # or 'DEBUG' for more logs (testing)
+            "propagate": False,
         },
     },
 }
 
 # Spectacular settings
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Django Template',
-    'DESCRIPTION': 'Django Template',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
+    "TITLE": "Django Template",
+    "DESCRIPTION": "Django Template",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
     # OTHER SETTINGS
 }
 
 # Email
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST', 'localhost')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', '')
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', '')
-EMAIL_PORT = int(config('EMAIL_PORT', 587))
+EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = config("EMAIL_HOST", "localhost")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", "")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", "")
+EMAIL_PORT = int(config("EMAIL_PORT", 587))
 EMAIL_USE_TLS = True
 
-SITE_ID = 2
+SITE_ID = config("SITE_ID", default=1, cast=int)
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
 USE_TZ = True
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SOCIALACCOUNT_QUERY_EMAIL = True
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
-ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_SIGNUP_FIELDS = ["username*", "email*", "password1*", "password2*"]
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
 # redirect to the login page in case of authentication failure
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-LOGIN_URL = 'http://localhost:8000/api/v1/auth/login/'
-LOGIN_REDIRECT_URL = 'http://localhost:8000/api/v1/auth/login/'
+LOGIN_URL = config("LOGIN_URL", default="account_login")
+LOGIN_REDIRECT_URL = config("LOGIN_REDIRECT_URL", default="swagger-ui")
 
 # Google OAuth2 Credentials
-GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID')
-GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET')
+GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID", default="")
+GOOGLE_CLIENT_SECRET = config("GOOGLE_CLIENT_SECRET", default="")
 
 # Apple OAuth2 Credentials
-APPLE_CLIENT_ID = config('APPLE_CLIENT_ID')
-APPLE_CLIENT_SECRET = config('APPLE_CLIENT_SECRET')
-APPLE_KEY = config('APPLE_KEY')
+APPLE_CLIENT_ID = config("APPLE_CLIENT_ID", default="")
+APPLE_CLIENT_SECRET = config("APPLE_CLIENT_SECRET", default="")
+APPLE_KEY = config("APPLE_KEY", default="")
+APPLE_CERTIFICATE_KEY = config("APPLE_CERTIFICATE_KEY", default="").replace("\\n", "\n")
 
 SOCIALACCOUNT_PROVIDERS = {
     # Create a Google OAuth2 application at https://console.developers.google.com/
@@ -245,11 +246,11 @@ SOCIALACCOUNT_PROVIDERS = {
         # For each OAuth based provider, either add a ``SocialApp``
         # (``socialaccount`` app) containing the required client
         # credentials, or list them here:
-        "APP": {
-            "client_id": GOOGLE_CLIENT_ID,
-            "secret": GOOGLE_CLIENT_SECRET,
-            "key": ""
-        },
+        **(
+            {"APP": {"client_id": GOOGLE_CLIENT_ID, "secret": GOOGLE_CLIENT_SECRET, "key": ""}}
+            if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
+            else {}
+        ),
         # These are provider-specific settings that can only be
         # listed here:
         "SCOPE": [
@@ -258,29 +259,37 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
         "AUTH_PARAMS": {
             "access_type": "online",
-        }
+        },
     },
     "apple": {
-        "APP": {
-            # Your service identifier.
-            "client_id": APPLE_CLIENT_ID,
-
-            # The Key ID (visible in the "View Key Details" page).
-            "secret": APPLE_CLIENT_SECRET,
-
-            # Member ID/App ID Prefix -- you can find it below your name
-            # at the top right corner of the page, or it’s your App ID
-            # Prefix in your App ID.
-            "key": APPLE_KEY,
-
-            # The certificate you downloaded when generating the key.
-            "certificate_key": """-----BEGIN PRIVATE KEY-----
-MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgvz15Eh7LJP8e2W02
-B7LvPbo8e4B7R8asKLnhTs06fFOgCgYIKoZIzj0DAQehRANCAASIBWOEVBL8wsuX
-WJ81uzajtBPVpyHNBxE1H2mv5u5ssJRKc5IDKJ8e5BwfMUIjLC8AcFGP50WCkPPP
-9iGu4DQF
------END PRIVATE KEY-----
-"""
-        }
-    }
+        **(
+            {
+                "APP": {
+                    # Your service identifier.
+                    "client_id": APPLE_CLIENT_ID,
+                    # The Key ID (visible in the "View Key Details" page).
+                    "secret": APPLE_CLIENT_SECRET,
+                    # Member ID/App ID Prefix -- you can find it below your name
+                    # at the top right corner of the page, or it’s your App ID
+                    # Prefix in your App ID.
+                    "key": APPLE_KEY,
+                    # The certificate you downloaded when generating the key.
+                    "certificate_key": APPLE_CERTIFICATE_KEY,
+                }
+            }
+            if APPLE_CLIENT_ID and APPLE_CLIENT_SECRET and APPLE_KEY and APPLE_CERTIFICATE_KEY
+            else {}
+        ),
+    },
 }
+
+# Shared storage paths match the volumes served by Caddy.
+MEDIA_URL = "/media/"
+MEDIA_ROOT = config("MEDIA_ROOT", default=str(BASE_DIR / "media"))
+STATIC_URL = "/static/"
+STATIC_ROOT = config("STATIC_ROOT", default=str(BASE_DIR / "staticfiles"))
+
+CELERY_BROKER_URL = config("CELERY_BROKER_URL", default="redis://redis:6379/0")
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default="redis://redis:6379/0")
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_BEAT_SCHEDULE = {}
